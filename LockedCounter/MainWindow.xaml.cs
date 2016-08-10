@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,9 +21,24 @@ namespace LockedCounter
     /// </summary>
     public partial class MainWindow : Window
     {
+        public TimeCounter Counter { get; set; }
         public MainWindow()
         {
             InitializeComponent();
+            Counter = new TimeCounter();
+            DataContext = Counter;
+        }
+
+        protected override void OnActivated(EventArgs e)
+        {
+            base.OnActivated(e);
+            Counter.Start();
+        }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            base.OnClosing(e);
+            Counter.Stop();
         }
     }
 }
