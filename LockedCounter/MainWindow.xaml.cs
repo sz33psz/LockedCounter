@@ -21,24 +21,29 @@ namespace LockedCounter
     /// </summary>
     public partial class MainWindow : Window
     {
-        public TimeCounter Counter { get; set; }
+        public TimeCounter Counter { get; private set; }
         public MainWindow()
         {
             InitializeComponent();
-            Counter = new TimeCounter();
+            Counter = DI.Get<TimeCounter>();
             DataContext = Counter;
-        }
-
-        protected override void OnActivated(EventArgs e)
-        {
-            base.OnActivated(e);
             Counter.Start();
         }
 
-        protected override void OnClosing(CancelEventArgs e)
+        protected async override void OnClosing(CancelEventArgs e)
         {
             base.OnClosing(e);
-            Counter.Stop();
+            await Counter.Stop();
+        }
+
+        private void Reset_Click(object sender, RoutedEventArgs e)
+        {
+            Counter.Reset();
+        }
+
+        private void Statistics_Click(object sender, RoutedEventArgs e)
+        {
+            new StatisticsWindow().Show();
         }
     }
 }

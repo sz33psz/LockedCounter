@@ -5,35 +5,44 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LockedCounter"
         mc:Ignorable="d"
-        Title="MainWindow" Height="115" Width="400">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition />
-            <ColumnDefinition Width="auto" />
-        </Grid.ColumnDefinitions>
-        <TextBlock
-            Margin="10"
-            Grid.Row="0"
-            Grid.Column="0"
-            Text="Unlocked time:" />
-        <TextBlock
-            Margin="10"
-            Grid.Row="0"
-            Grid.Column="1"
-            Text="{Binding UnlockedTime}" />
-        <TextBlock
-            Margin="10"
-            Grid.Row="1"
-            Grid.Column="0"
-            Text="Locked time:" />
-        <TextBlock
-            Margin="10"
-            Grid.Row="1"
-            Grid.Column="1"
-            Text="{Binding LockedTime}" />
-    </Grid>
+        Title="MainWindow" Height="140" Width="400">
+    <StackPanel Orientation="Vertical">
+        <Menu>
+            <MenuItem Header="Options">
+                <MenuItem Header="_Reset" Click="Reset_Click"/>
+                <Separator />
+                <MenuItem Header="_Statistics" Click="Statistics_Click"/>
+            </MenuItem>
+        </Menu>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock
+                Margin="10"
+                Grid.Row="0"
+                Grid.Column="0"
+                Text="Unlocked time:" />
+            <TextBlock
+                Margin="10"
+                Grid.Row="0"
+                Grid.Column="1"
+                Text="{Binding UnlockedTime}" />
+            <TextBlock
+                Margin="10"
+                Grid.Row="1"
+                Grid.Column="0"
+                Text="Locked time:" />
+            <TextBlock
+                Margin="10"
+                Grid.Row="1"
+                Grid.Column="1"
+                Text="{Binding LockedTime}" />
+        </Grid>
+    </StackPanel>
 </Window>

@@ -1,4 +1,5 @@
 ﻿using LockedCounter.Model;
+using LockedCounter.Storage;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -10,26 +11,43 @@ using System.Timers;
 
 namespace LockedCounter
 {
-    public class TimeCounter: VMBase
+    public class TimeCounter : VMBase
     {
         private static readonly TimeSpan Change = TimeSpan.FromSeconds(1);
-        private Timer timer;
+        private Timer _timer;
+        public BaseRepository<StateDuration> Repository { get; set; }
 
-        private ScreenState _screenState = ScreenState.Unlocked;
+        private ScreenState _screenState;
 
         public ScreenState ScreenState
         {
             get { return _screenState; }
-            set { _screenState = value; }
+            set
+            {
+                _screenState = value;
+                OnPropertyChanged();
+            }
         }
 
+        private DateTime _lastStateChange;
+
+        public DateTime LastStateChange
+        {
+            get { return _lastStateChange; }
+            set
+            {
+                _lastStateChange = value;
+                OnPropertyChanged();
+            }
+        }
 
         private TimeSpan _unlockedTime = TimeSpan.Zero;
 
         public TimeSpan UnlockedTime
         {
             get { return _unlockedTime; }
-            set {
+            set
+            {
                 _unlockedTime = value;
                 OnPropertyChanged();
             }
@@ -40,7 +58,8 @@ namespace LockedCounter
         public TimeSpan LockedTime
         {
             get { return _lockedTime; }
-            set {
+            set
+            {
                 _lockedTime = value;
                 OnPropertyChanged();
             }
@@ -48,23 +67,33 @@ namespace LockedCounter
 
         public void Start()
         {
-            timer = new Timer(1000);
-            timer.Elapsed += Timer_Elapsed;
+            ScreenState = ScreenState.Unlocked;
+            LastStateChange = DateTime.Now;
+            _timer = new Timer(1000);
+            _timer.Elapsed += Timer_Elapsed;
             SystemEvents.SessionSwitch += SystemEvents_SessionSwitch;
-            timer.Start();
+            _timer.Start();
         }
 
-        public void Stop()
+        public async Task Stop()
         {
-            timer.Stop();
-            timer.Elapsed -= Timer_Elapsed;
-            timer.Dispose();
+            _timer.Stop();
+            _timer.Elapsed -= Timer_Elapsed;
+            _timer.Dispose();
             SystemEvents.SessionSwitch -= SystemEvents_SessionSwitch;
+            await SaveData(ScreenState);
         }
 
-        private void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
+        public void Reset()
         {
-            switch(e.Reason)
+            LockedTime = TimeSpan.Zero;
+            UnlockedTime = TimeSpan.Zero;
+        }
+
+        private async void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
+        {
+            var lastState = ScreenState;
+            switch (e.Reason)
             {
                 case SessionSwitchReason.SessionLogon:
                 case SessionSwitchReason.SessionUnlock:
@@ -79,12 +108,27 @@ namespace LockedCounter
                     ScreenState = ScreenState.Locked;
                     break;
             }
+            if (ScreenState != lastState)
+            {
+                await SaveData(lastState);
+                LastStateChange = DateTime.Now;
+            }
+        }
+
+        private async Task SaveData(ScreenState lastState)
+        {
+            StateDuration toSave = new StateDuration()
+            {
+                StartTime = LastStateChange,
+                EndTime = DateTime.Now,
+                State = lastState
+            };
+            await Repository.Add(toSave);
         }
 
         private void Timer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            var toChange = (ScreenState == ScreenState.Unlocked ? UnlockedTime : LockedTime);
-            if(ScreenState == ScreenState.Unlocked)
+            if (ScreenState == ScreenState.Unlocked)
             {
                 UnlockedTime += Change;
             }
