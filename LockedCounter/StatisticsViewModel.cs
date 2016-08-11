@@ -84,8 +84,8 @@ namespace LockedCounter
                 .Elements
                 .Where(x => (x.StartTime >= current && x.EndTime <= end)
                 || (x.StartTime <= current && x.EndTime >= end)
-                || (x.StartTime <= current && x.EndTime <= end)
-                || (x.StartTime >= current && x.EndTime >= end));
+                || (x.StartTime <= current && x.EndTime >= current && x.EndTime <= end)
+                || (x.StartTime >= current && x.StartTime <= end && x.EndTime >= end));
                 if(inRange.Count() == 0)
                 {
                     dataPoints.Add(new DataPoint(DateTimeAxis.ToDouble(current.AddMinutes(30)), 0));

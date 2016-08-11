@@ -223,5 +223,26 @@ namespace LockedCounter.Tests
             Assert.AreEqual(50d, vm.PlotPoints[0].Y);
         }
 
+        [TestMethod]
+        public void ManyPoints()
+        {
+            var end = Start.AddHours(2);
+            var duration = new StateDuration() { StartTime = Start.AddMinutes(-30), EndTime = Start.AddMinutes(30), State = ScreenState.Unlocked };
+            var duration2 = new StateDuration() { StartTime = Start.AddMinutes(30), EndTime = Start.AddMinutes(90), State = ScreenState.Locked };
+            var duration3 = new StateDuration() { StartTime = Start.AddMinutes(90), EndTime = end, State = ScreenState.Unlocked };
+            var repositoryMock = new StateDurationRepository(new List<StateDuration>() { duration, duration2, duration3 });
+
+            var vm = new StatisticsViewModel()
+            {
+                Repository = repositoryMock,
+                StartTime = Start,
+                EndTime = end
+            };
+            vm.Calculate();
+            Assert.AreEqual(2, vm.PlotPoints.Count);
+            Assert.AreEqual(50d, vm.PlotPoints[0].Y);
+            Assert.AreEqual(50d, vm.PlotPoints[1].Y);
+
+        }
     }
 }
