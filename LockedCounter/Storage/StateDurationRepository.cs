@@ -10,5 +10,9 @@ namespace LockedCounter.Storage
     public class StateDurationRepository : BaseRepository<StateDuration>
     {
         public StateDurationRepository() : base("stateDurations.json") { }
+        public StateDurationRepository(IList<StateDuration> initialData) //Tests
+        {
+            _collection = initialData;
+        }
     }
 }

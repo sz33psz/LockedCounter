@@ -78,14 +78,14 @@ namespace LockedCounter
         public void Calculate()
         {
             var dataPoints = new List<DataPoint>();
-            for(DateTime current = StartTime, end = StartTime.AddHours(1); current <= EndTime; current = current.AddHours(1), end = end.AddHours(1))
+            for(DateTime current = StartTime, end = StartTime.AddHours(1); current < EndTime; current = current.AddHours(1), end = end.AddHours(1))
             {
                 IEnumerable<StateDuration> inRange = Repository
                 .Elements
-                .Where(x =>
-                    (x.StartTime >= current && x.StartTime <= end) ||
-                    (x.EndTime >= current && x.EndTime <= end))
-                    .OrderBy(x => x.StartTime);
+                .Where(x => (x.StartTime >= current && x.EndTime <= end)
+                || (x.StartTime <= current && x.EndTime >= end)
+                || (x.StartTime <= current && x.EndTime <= end)
+                || (x.StartTime >= current && x.EndTime >= end));
                 if(inRange.Count() == 0)
                 {
                     dataPoints.Add(new DataPoint(DateTimeAxis.ToDouble(current.AddMinutes(30)), 0));

@@ -13,7 +13,7 @@ namespace LockedCounter.Storage
         private string _fileName;
         protected IList<T> _collection;
 
-        public IEnumerable<T> Elements
+        public virtual IEnumerable<T> Elements
         {
             get
             {
@@ -26,6 +26,8 @@ namespace LockedCounter.Storage
             _collection.Add(element);
             await SaveState();
         }
+
+        protected BaseRepository() { } //Tests
 
         protected BaseRepository(string fileName)
         {
